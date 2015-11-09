@@ -1,57 +1,23 @@
 <html>
 
     <head>
-        <!--<script src="handlebars-v4.0.4.js" type="text/javascript"></script>-->
         <script src="handlebars.runtime-v4.0.4.js" type="text/javascript"></script>
         <script src="templates/templates.js" type="text/javascript"></script>
         <script src="jquery-2.1.4.min.js" type="text/javascript"></script>
     </head>
 
     <body>
-        <script id="header-template" src="header-partial.js" type="text/x-handlebars-template"></script>
-
-        <!--<script id="entry-template" type="text/x-handlebars-template">
-            <div class="entry">
-                <h1>{{title}}</h1>
-                <div class="body">
-                    {{body}}
-                </div>
-            </div>
-        </script>-->
-
-
-
         <div id="header-placeholder"></div>
         <div id="content-placeholder"></div>
         <div id="api-placeholder"></div>
 
         <script type="text/javascript">
-            //Handlebars.registerHelper('filmUrl', function(films))
-
-            var headerData = {
-                'date' : new Date().toString()
-            };
-
-            var contentData = {
-                'title' : 'My Post',
-                'body' : 'My first post!'
-            };
-
-            //renderTemplate(Handlebars.templates.header, headerData, "#header-placeholder");
-
-            //var headerTemplate = Handlebars.templates['header.hbs'];
-            renderTemplate(Handlebars.templates['header.hbs'], headerData, "#header-placeholder");
-
-            //renderTemplate("#header-template", headerData, "#header-placeholder");
-            //getTemplateAjax("header-partial.js", headerData, "#header-placeholder");
-            //renderTemplate("#entry-template", contentData, "#content-placeholder");
+            renderTemplate(Handlebars.templates['header.hbs'], {'date' : new Date().toString()}, "#header-placeholder");
 
             apiRequest();
 
             function renderTemplate(template, contextData, placeholderId)
             {
-                //var source = $(sourceId.toString()).html();
-                //var template = Handlebars.compile(source);
                 var context = contextData;
                 var html = template(context);
 
@@ -64,12 +30,7 @@
                     url: "http://swapi.co/api/people/1/"
                 })
                 .done(function(result){
-                    //$("#api-stuff").html(result.name.toString());
-                    //$("api-stuff").html(JSON.stringify(result))
-                    //var data = JSON.stringify(result);
-                    //$("#api-stuff").html(data);
                     renderTemplate(Handlebars.templates['people.hbs'], result, "#api-placeholder");
-
                     $("#api-placeholder").html(html);
                 })
                 .fail(function() {
