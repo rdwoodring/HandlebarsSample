@@ -1,0 +1,113 @@
+<html>
+
+    <head>
+        <script src="handlebars-v4.0.4.js" type="text/javascript"></script>
+        <script src="jquery-2.1.4.min.js" type="text/javascript"></script>
+    </head>
+
+    <body>
+        <script id="header-template" src="header-partial.js" type="text/x-handlebars-template"></script>
+
+        <script id="entry-template" type="text/x-handlebars-template">
+            <div class="entry">
+                <h1>{{title}}</h1>
+                <div class="body">
+                    {{body}}
+                </div>
+            </div>
+        </script>
+
+        <script id="api-people-template" type="text/x-handlebars-template">
+            <div>
+                <h1>{{name}}</h1>
+                <h3>Vitals</h3>
+                <p>
+                    Height: {{height}}<br />
+                    Mass: {{mass}}
+                </p>
+                <p>
+                    {{#each films}}
+                    <a href="{{this}}">{{this}}</a><br />
+                    {{/each}}
+                </p>
+            </div>
+        </script>
+
+
+        <div id="header-placeholder"></div>
+        <div id="content-placeholder"></div>
+        <div id="api-placeholder"></div>
+
+        <script type="text/javascript">
+            //Handlebars.registerHelper('filmUrl', function(films))
+
+            var headerData = {
+                'date' : new Date().toString()
+            };
+
+            var contentData = {
+                'title' : 'My Post',
+                'body' : 'My first post!'
+            };
+
+
+
+            //renderTemplate("#header-template", headerData, "#header-placeholder");
+            getTemplateAjax("header-partial.js", headerData, "#header-placeholder");
+            renderTemplate("#entry-template", contentData, "#content-placeholder");
+
+            apiRequest();
+
+            function renderTemplate(sourceId, contextData, placeholderId)
+            {
+                var source = $(sourceId.toString()).html();
+                var template = Handlebars.compile(source);
+                var context = contextData;
+                var html = template(context);
+
+                $(placeholderId).html(html);
+            }
+
+            function getTemplateAjax(path, contextData, placeholderId)
+            {
+                $.ajax({
+                    url: path,
+                    cache: true,
+                    success: function(data) {
+                        var source = new XMLSerializer().serializeToString(data);
+                        var template = Handlebars.compile(source);
+                        var context = contextData;
+                        var html = template(context);
+
+                        $(placeholderId).html(html);
+                    }
+                });
+            }
+
+            function apiRequest()
+            {
+                $.ajax({
+                    url: "http://swapi.co/api/people/1/"
+                })
+                .done(function(result){
+                    //$("#api-stuff").html(result.name.toString());
+                    //$("api-stuff").html(JSON.stringify(result))
+                    //var data = JSON.stringify(result);
+                    //$("#api-stuff").html(data);
+                    var source = $("#api-people-template").html();
+                    var template = Handlebars.compile(source);
+                    var context = result;
+                    var html = template(context);
+
+                    $("#api-placeholder").html(html);
+                })
+                .fail(function() {
+                    $("#api-stuff").html("failure");
+                })
+                .always(function() {
+                    //add code
+                });
+            }
+        </script>
+    </body>
+</html>
