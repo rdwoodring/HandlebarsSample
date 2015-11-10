@@ -9,37 +9,90 @@
     <body>
         <div id="header-placeholder"></div>
 
-        <!--<div>
-          <a href="#"></a>
+        <a href="#" id="personButton">Show me a person!</a>
+        <div class="tile">
           <div id="people-placeholder"></div>
         </div>
-        <div>
-          <div></div>
-        </div>-->
+        <div class="tile">
+          <div id="films-placeholder"></div>
+        </div>
 
         <script type="text/javascript">
             renderTemplate(Handlebars.templates['header.hbs'], {'date' : new Date().toString()}, "#header-placeholder");
 
-            apiRequest(Handlebars.templates['people.hbs'], 'http://swapi.co/api/people/1/', "#people-placeholder")
-            .done(renderTemplate(Handlebars.templates['people.hbs'], result, "#api-placeholder"));
+            $("#personButton").click(function() {
+              getPerson();
+            });
 
-            function renderTemplate(template, contextData, placeholderId)
+
+            function getPerson()
+            {
+              //var films =[];
+              //var filmPromise;
+
+              var promise = $.ajax({url: 'http://swapi.co/api/people/1/'});
+
+              //TODO: show loading graphic
+
+              promise.then(function() {
+                renderTemplate(Handlebars.templates['people.hbs'], promise.responseJSON, "#people-placeholder", true);
+              }).then(function() {
+                for (var i = 0; i < promise.responseJSON.films.length; i++)
+                {
+                  getFilm(promise.responseJSON.films[i]);
+                }
+              });
+            }
+
+            function getFilm(film)
+            {
+              var promise = $.ajax({url: film});
+              promise.then(function() {
+                console.log(promise.responseJSON.title);
+                renderTemplate(Handlebars.templates['films.hbs'], promise.responseJSON, "#films-placeholder", false);
+              });
+            }
+
+            /*function getFilms(films)
+            {
+              var filmPromises = [];
+
+              $.each(films, function() {
+                var filmPromise = $.ajax({url: this});
+                filmPromises.push(filmPromise);
+              });
+               $.when.apply($, filmPromises).done(function(promise) {
+                 console.log(promise);
+                 //console.log(promise[0].title);
+                 //renderTemplate(Handlebars.templates['films.hbs'], promise.responseJSON, "#films-placeholder", false);
+               });
+            }*/
+
+            function renderTemplate(template, contextData, placeholderId, overwrite = true)
             {
                 var context = contextData;
                 var html = template(context);
 
-                $(placeholderId).html(html);
+                if (overwrite)
+                {
+                  $(placeholderId).html(html);
+                }
+                else
+                {
+                  $(placeholderId).append(html);
+                }
             }
 
-            function apiRequest(template, apiEndpoint, placeholderId)
+            function apiRequest(apiEndpoint)
             {
+                var dfd = new $.Deferred();
+
                 $.ajax({
                     url: apiEndpoint
                 })
-                .done(function(result){
-                    //renderTemplate(template, result, placeholderId);
-                    //return result;
-                    return result;
+                .done(function(status){
+                    personData = result;
+                    dfd.resolve(result);
                 })
                 .fail(function() {
                     $("#api-placeholder").html("Uh oh!  The Sarlaac must have eaten those results...");
@@ -47,6 +100,8 @@
                 .always(function() {
                     //add code
                 });
+
+                return dfd.promise();
             }
         </script>
     </body>
