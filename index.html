@@ -4,33 +4,58 @@
         <script src="handlebars.runtime-v4.0.4.js" type="text/javascript"></script>
         <script src="templates/templates.js" type="text/javascript"></script>
         <script src="jquery-2.1.4.min.js" type="text/javascript"></script>
+        <link rel="stylesheet" href="styles/styles.css" />
     </head>
 
     <body>
+      <div id="main-container">
         <div id="header-placeholder"></div>
 
-        <a href="#" id="personButton">Show me a person!</a>
-        <div class="tile">
-          <div id="people-placeholder"></div>
+        <a href="#" class="button" id="person-button">
+          I LOVE Star Wars<br />
+          Show me a character!<br />
+          <span class="small-text">(and all the movies he was in)</span>
+          <div class="overlay">
+            <img src="images/ajax-loader.gif" alt="loading" />
+          </div>
+        </a>
+        <div class="ajax-content">
+          <div class="tile">
+            <div id="people-placeholder"></div>
+          </div>
+          <div class="tile">
+            <div id="films-placeholder"></div>
+          </div>
         </div>
-        <div class="tile">
-          <div id="films-placeholder"></div>
-        </div>
+      </div>
 
         <script type="text/javascript">
             renderTemplate(Handlebars.templates['header.hbs'], {'date' : new Date().toString()}, "#header-placeholder");
 
-            $("#personButton").click(function() {
+            var startAt = 0;
+
+            $("#person-button").click(function() {
+              toggleLoading();
+              clearDivs();
               getPerson();
             });
 
+            function toggleLoading()
+            {
+              $(".overlay").toggle(0);
+            }
+
+            function clearDivs()
+            {
+              $("#people-placeholder").html("");
+              $("#films-placeholder").html("");
+              $(".ajax-content").innerHeight(0);
+            }
 
             function getPerson()
             {
-
-              var promise = $.ajax({url: 'http://swapi.co/api/people/1/'});
-
-              //TODO: show loading graphic
+              startAt++;
+              var promise = $.ajax({url: 'http://swapi.co/api/people/' + startAt + '/'});
 
               promise.then(function() {
                 renderTemplate(Handlebars.templates['people.hbs'], promise.responseJSON, "#people-placeholder", true);
@@ -39,6 +64,8 @@
                 {
                   getFilm(promise.responseJSON.films[i]);
                 }
+              }).then(function() {
+                toggleLoading();
               });
             }
 
@@ -58,14 +85,27 @@
 
                 if (overwrite)
                 {
-                  //we're overwriting so no need to remove loading graphic
                   $(placeholderId).html(html);
                 }
                 else
                 {
-                  //TODO: remove loading graphic
                   $(placeholderId).append(html);
                 }
+
+                updateDisplay();
+            }
+
+            //for more fluid height display
+            function updateDisplay()
+            {
+              //TODO: check for single or double column for more accurate height
+
+              //var greaterHeight = (($("#people-placeholder").innerHeight() > $("#films-placeholder").innerHeight()) ? $("#people-placeholder").innerHeight() : $("#films-placeholder").innerHeight());
+              var greaterHeight = $("#people-placeholder").innerHeight() + $("#films-placeholder").innerHeight();
+              if (greaterHeight > $(".ajax-content").innerHeight())
+              {
+                $(".ajax-content").animate({height: greaterHeight + "px"});
+              }
             }
         </script>
     </body>
