@@ -27,8 +27,6 @@
 
             function getPerson()
             {
-              //var films =[];
-              //var filmPromise;
 
               var promise = $.ajax({url: 'http://swapi.co/api/people/1/'});
 
@@ -53,21 +51,6 @@
               });
             }
 
-            /*function getFilms(films)
-            {
-              var filmPromises = [];
-
-              $.each(films, function() {
-                var filmPromise = $.ajax({url: this});
-                filmPromises.push(filmPromise);
-              });
-               $.when.apply($, filmPromises).done(function(promise) {
-                 console.log(promise);
-                 //console.log(promise[0].title);
-                 //renderTemplate(Handlebars.templates['films.hbs'], promise.responseJSON, "#films-placeholder", false);
-               });
-            }*/
-
             function renderTemplate(template, contextData, placeholderId, overwrite = true)
             {
                 var context = contextData;
@@ -75,33 +58,14 @@
 
                 if (overwrite)
                 {
+                  //we're overwriting so no need to remove loading graphic
                   $(placeholderId).html(html);
                 }
                 else
                 {
+                  //TODO: remove loading graphic
                   $(placeholderId).append(html);
                 }
-            }
-
-            function apiRequest(apiEndpoint)
-            {
-                var dfd = new $.Deferred();
-
-                $.ajax({
-                    url: apiEndpoint
-                })
-                .done(function(status){
-                    personData = result;
-                    dfd.resolve(result);
-                })
-                .fail(function() {
-                    $("#api-placeholder").html("Uh oh!  The Sarlaac must have eaten those results...");
-                })
-                .always(function() {
-                    //add code
-                });
-
-                return dfd.promise();
             }
         </script>
     </body>
