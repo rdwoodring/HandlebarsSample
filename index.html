@@ -8,13 +8,20 @@
 
     <body>
         <div id="header-placeholder"></div>
-        <div id="content-placeholder"></div>
-        <div id="api-placeholder"></div>
+
+        <!--<div>
+          <a href="#"></a>
+          <div id="people-placeholder"></div>
+        </div>
+        <div>
+          <div></div>
+        </div>-->
 
         <script type="text/javascript">
             renderTemplate(Handlebars.templates['header.hbs'], {'date' : new Date().toString()}, "#header-placeholder");
 
-            apiRequest();
+            apiRequest(Handlebars.templates['people.hbs'], 'http://swapi.co/api/people/1/', "#people-placeholder")
+            .done(renderTemplate(Handlebars.templates['people.hbs'], result, "#api-placeholder"));
 
             function renderTemplate(template, contextData, placeholderId)
             {
@@ -24,17 +31,18 @@
                 $(placeholderId).html(html);
             }
 
-            function apiRequest()
+            function apiRequest(template, apiEndpoint, placeholderId)
             {
                 $.ajax({
-                    url: "http://swapi.co/api/people/1/"
+                    url: apiEndpoint
                 })
                 .done(function(result){
-                    renderTemplate(Handlebars.templates['people.hbs'], result, "#api-placeholder");
-                    $("#api-placeholder").html(html);
+                    //renderTemplate(template, result, placeholderId);
+                    //return result;
+                    return result;
                 })
                 .fail(function() {
-                    $("#api-stuff").html("failure");
+                    $("#api-placeholder").html("Uh oh!  The Sarlaac must have eaten those results...");
                 })
                 .always(function() {
                     //add code
